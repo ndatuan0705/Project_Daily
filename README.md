@@ -11,8 +11,7 @@ Bài thực hành theo tuần của môn Chuyên đề Linux. Mỗi thư mục c
 
 ## Tải về và chạy trên Linux Mint
 
-Chạy nguyên khối này sau mỗi lần boot (USB không có persistence thì mất hết
-phần mềm đã cài, nên phải làm lại):
+Chạy khối này sau mỗi lần boot:
 
 ```bash
 sudo apt update
