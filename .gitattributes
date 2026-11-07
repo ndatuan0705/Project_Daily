@@ -1,0 +1,19 @@
+# Khong co file nay, script .sh commit tu Windows se mang ky tu CR va
+# Linux bao loi:  ./sim/run_sim.sh: bad interpreter: No such file or directory
+
+* text=auto
+
+*.v        text eol=lf
+*.sv       text eol=lf
+*.sh       text eol=lf
+*.mk       text eol=lf
+Makefile   text eol=lf
+*.md       text eol=lf
+*.gtkw     text eol=lf
+.gitignore text eol=lf
+
+*.bat      text eol=crlf
+
+*.png      binary
+*.jpg      binary
+*.pdf      binary
