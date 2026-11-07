@@ -17,8 +17,8 @@ Chạy khối này sau mỗi lần boot:
 sudo apt update
 sudo apt install -y git iverilog gtkwave make
 
-git clone https://github.com/<tai-khoan>/<ten-repo>.git
-cd <ten-repo>
+git clone https://github.com/ndatuan0705/Project_Daily.git
+cd Project_Daily
 
 chmod +x setup.sh ChuDe_Tuan13/sim/run_sim.sh
 cd ChuDe_Tuan13
