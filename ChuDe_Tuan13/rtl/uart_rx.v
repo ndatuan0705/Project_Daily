@@ -54,11 +54,40 @@ module uart_rx #(
     always @(*) begin
         next_state = state;
         case (state)
-            IDLE:    if (tx_start)              next_state = START;
-            START:   if (bit_done)              next_state = DATA;
-            DATA:    if (bit_done && last_bit)  next_state = STOP;
-            STOP:    if (bit_done && last_stop) next_state = IDLE;
-            default: next_state = IDLE;
+
+            IDLE: begin
+                if (rx_sync == 1'b0) begin             // canh xuong = START bit
+                    next_state = START;
+                end
+            end
+
+            START: begin
+                if (half_done) begin
+                    if (rx_sync == 1'b0) begin         // dung START bit
+                        next_state = DATA;
+                    end
+                    else begin                         // nhieu ngan, bo qua
+                        next_state = IDLE;
+                    end
+                end
+            end
+
+            DATA: begin
+                if (bit_done && last_bit) begin
+                    next_state = STOP;
+                end
+            end
+
+            STOP: begin
+                if (bit_done) begin
+                    next_state = IDLE;
+                end
+            end
+
+            default: begin
+                next_state = IDLE;
+            end
+
         endcase
     end
 
