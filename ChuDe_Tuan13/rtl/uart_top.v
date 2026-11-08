@@ -32,9 +32,6 @@ module uart_top #(
         .tx_start (tx_start), .tx_data (tx_data),
         .tx (uart_txd), .tx_busy (tx_busy), .tx_done (tx_done)
     );
-
-    // uart_rx khong can STOP_BITS: chi kiem tra stop bit dau tien roi ve IDLE,
-    // duong truyen van o muc '1' trong cac stop bit con lai.
     uart_rx #(
         .CLK_FREQ_HZ (CLK_FREQ_HZ),
         .BAUD_RATE   (BAUD_RATE),

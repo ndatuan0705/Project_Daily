@@ -20,6 +20,14 @@ sim/out/
 *.swo
 *~
 
+*.docx
+*.doc
+*.pptx
+*.odt
+~$*
+~WRL*.tmp
+*.tmp
+
 .DS_Store
 Thumbs.db
 desktop.ini

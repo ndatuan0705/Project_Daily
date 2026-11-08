@@ -1,37 +1,39 @@
 [*] GTKWave save file - Lab 6 UART
 [dumpfile] "sim/out/tb_uart.vcd"
 [timestart] 0
-[size] 1600 800
+[size] 1700 620
 [treeopen] tb_uart.
 [treeopen] tb_uart.dut.
 [sst_width] 240
-[signals_width] 260
+[signals_width] 280
 [sst_expanded] 1
-[sst_vpaned_height] 300
+[sst_vpaned_height] 320
 @820
 -PHIA TRUYEN
 @28
 tb_uart.clk
 tb_uart.rst_n
 tb_uart.tx_start
-@22
 tb_uart.tx_data[7:0]
-@28
 tb_uart.tx_busy
 tb_uart.tx_done
 @820
--DUONG TRUYEN NOI TIEP (TXD -> RXD)
+-DUONG TRUYEN NOI TIEP (noi vong TXD -> RXD)
 @28
-tb_uart.uart_line
+tb_uart.dut.uart_txd
+tb_uart.dut.uart_rxd
 @820
--FSM (0=IDLE 1=START 2=DATA 3=STOP)
+-FSM uart_tx (0=IDLE 1=START 2=DATA 3=STOP)
 @22
 tb_uart.dut.u_tx.state[1:0]
+@28
 tb_uart.dut.u_tx.shreg[7:0]
-tb_uart.dut.u_rx.state[1:0]
-tb_uart.dut.u_rx.shreg[7:0]
 @820
--PHIA NHAN
+-FSM uart_rx + KET QUA
+@22
+tb_uart.dut.u_rx.state[1:0]
+@28
+tb_uart.dut.u_rx.shreg[7:0]
 @22
 tb_uart.rx_data[7:0]
 @28

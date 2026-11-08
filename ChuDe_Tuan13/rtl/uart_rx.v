@@ -4,7 +4,7 @@ module uart_rx #(
     parameter CLK_FREQ_HZ = 50000000,
     parameter BAUD_RATE   = 115200,
     parameter DATA_BITS   = 8
-)(
+) (
     input  wire                 clk,
     input  wire                 rst_n,
     input  wire                 rx,
@@ -14,17 +14,14 @@ module uart_rx #(
     output reg                  frame_err
 );
 
-    localparam DIVISOR  = CLK_FREQ_HZ / BAUD_RATE;     // 434 chu ky clock / bit
-    localparam HALF_BIT = DIVISOR / 2;                 // 217
+    localparam DIVISOR = CLK_FREQ_HZ / BAUD_RATE;  // 434 chu ky clock / bit
+    localparam HALF_BIT = DIVISOR / 2;  // 217
 
-    localparam IDLE  = 2'd0,
-               START = 2'd1,
-               DATA  = 2'd2,
-               STOP  = 2'd3;
+    localparam IDLE = 2'd0, START = 2'd1, DATA = 2'd2, STOP = 2'd3;
 
-    reg [1:0]           state, next_state;
-    reg [15:0]          clk_cnt;
-    reg [3:0]           bit_idx;
+    reg [1:0] state, next_state;
+    reg [         15:0] clk_cnt;
+    reg [          3:0] bit_idx;
     reg [DATA_BITS-1:0] shreg;
 
     // Dong bo chan rx bang 2 flip-flop de chong metastability
@@ -33,17 +30,16 @@ module uart_rx #(
         if (!rst_n) begin
             rx_ff1 <= 1'b1;
             rx_ff2 <= 1'b1;
-        end
-        else begin
+        end else begin
             rx_ff1 <= rx;
             rx_ff2 <= rx_ff1;
         end
     end
 
-    wire rx_sync   = rx_ff2;
-    wire half_done = (clk_cnt == HALF_BIT  - 1);
-    wire bit_done  = (clk_cnt == DIVISOR   - 1);
-    wire last_bit  = (bit_idx == DATA_BITS - 1);
+    wire rx_sync = rx_ff2;
+    wire half_done = (clk_cnt == HALF_BIT - 1);
+    wire bit_done = (clk_cnt == DIVISOR - 1);
+    wire last_bit = (bit_idx == DATA_BITS - 1);
 
     // (1) Thanh ghi trang thai
     always @(posedge clk or negedge rst_n) begin
@@ -58,34 +54,11 @@ module uart_rx #(
     always @(*) begin
         next_state = state;
         case (state)
-            IDLE: begin
-                if (rx_sync == 1'b0) begin             // canh xuong = START bit
-                    next_state = START;
-                end
-            end
-            START: begin
-                if (half_done) begin
-                    if (rx_sync == 1'b0) begin         // dung START bit
-                        next_state = DATA;
-                    end
-                    else begin                         // bo qua
-                        next_state = IDLE;
-                    end
-                end
-            end
-            DATA: begin
-                if (bit_done && last_bit) begin
-                    next_state = STOP;
-                end
-            end
-            STOP: begin
-                if (bit_done) begin
-                    next_state = IDLE;
-                end
-            end
-            default: begin
-                next_state = IDLE;
-            end
+            IDLE:    if (tx_start)              next_state = START;
+            START:   if (bit_done)              next_state = DATA;
+            DATA:    if (bit_done && last_bit)  next_state = STOP;
+            STOP:    if (bit_done && last_stop) next_state = IDLE;
+            default: next_state = IDLE;
         endcase
     end
 
@@ -99,9 +72,8 @@ module uart_rx #(
             rx_valid  <= 1'b0;
             rx_busy   <= 1'b0;
             frame_err <= 1'b0;
-        end
-        else begin
-            rx_valid <= 1'b0;                          // chi cao 1 chu ky clock
+        end else begin
+            rx_valid <= 1'b0;  // chi cao 1 chu ky clock
 
             case (state)
 
@@ -117,13 +89,12 @@ module uart_rx #(
                     if (half_done) begin
                         clk_cnt <= 16'd0;
                         if (rx_sync == 1'b0) begin
-                            bit_idx <= 4'd0;           // tu day moi lan dem du
+                            bit_idx <= 4'd0;  // tu day moi lan dem du
                         end                            // 1 bit la mot diem lay mau
                         else begin
                             rx_busy <= 1'b0;
                         end
-                    end
-                    else begin
+                    end else begin
                         clk_cnt <= clk_cnt + 1'b1;
                     end
                 end
@@ -134,8 +105,7 @@ module uart_rx #(
                         if (!last_bit) begin
                             bit_idx <= bit_idx + 1'b1;
                         end
-                    end
-                    else begin
+                    end else begin
                         clk_cnt <= clk_cnt + 1'b1;
                     end
                 end
@@ -145,9 +115,8 @@ module uart_rx #(
                         rx_data   <= shreg;
                         rx_valid  <= 1'b1;
                         rx_busy   <= 1'b0;
-                        frame_err <= ~rx_sync;         // STOP bit phai bang '1'
-                    end
-                    else begin
+                        frame_err <= ~rx_sync;  // STOP bit phai bang '1'
+                    end else begin
                         clk_cnt <= clk_cnt + 1'b1;
                     end
                 end

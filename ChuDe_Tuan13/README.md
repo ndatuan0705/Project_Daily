@@ -17,7 +17,6 @@ Nội dung thực hiện:
 ```
 ChuDe_Tuan13/
 ├── README.md
-├── .gitignore
 │
 ├── rtl/                      Mã nguồn thiết kế
 │   ├── uart_tx.v             Bộ truyền
@@ -28,13 +27,21 @@ ChuDe_Tuan13/
 │   └── tb_uart.v             Testbench
 │
 ├── sim/                      Script mô phỏng
-│   ├── run_sim.sh
-│   ├── uart.mk
-│   ├── run_sim.bat
+│   ├── run_sim.sh            Linux
+│   ├── uart.mk               make -f sim/uart.mk
+│   ├── run_sim.bat           Windows
 │   ├── wave_uart.gtkw        Cấu hình tín hiệu cho GTKWave
 │   └── out/                  Tự sinh khi chạy, không commit
 │
 └── docs/                     Sơ đồ và ảnh waveform
+    ├── uart_block_diagram.png
+    ├── uart_frame.png
+    ├── uart_tx_fsm.png
+    ├── uart_rx_fsm.png
+    ├── log_result.jpg
+    ├── wave_full_frame.png
+    ├── wave_start.png
+    └── wave_done.png
 ```
 
 ---
@@ -146,6 +153,10 @@ hai thiết bị. Nếu nửa bit sau vẫn thấy mức `1` thì đó chỉ là
 
 STOP bit cũng được lấy mẫu: nếu không phải `1` thì bật cờ `frame_err`.
 
+`uart_rx` không nhận tham số `STOP_BITS`. Nó chỉ kiểm tra stop bit đầu tiên rồi
+về `IDLE`; các stop bit còn lại vẫn giữ đường truyền ở mức `1` nên không bị hiểu
+thành START bit mới.
+
 ---
 
 ## 5. Kiểm chứng
@@ -179,42 +190,39 @@ thì một lỗi đối xứng ở cả hai phía — ví dụ cùng gửi và c
 
 ---
 
-## 6. Waveform
+## 6. Kết quả chạy
 
-### Một khung dữ liệu hoàn chỉnh
+![Log chạy trên Linux Mint](docs/log_result.jpg)
 
-![Waveform một khung](docs/wave_frame.png)
+## 7. Waveform
 
-Đọc từ trên xuống: `tx_data = 55` được nạp vào thanh ghi dịch, `uart_line` phát
-chuỗi bit đổi dấu, `shreg` phía truyền dịch phải `55 → 2A → 15 → 0A → 05 → 02 →
-01 → 00`, `shreg` phía nhận nạp dần từ MSB `00 → 80 → 40 → A0 → 50 → A8 → 54 →
-AA → 55`, cuối cùng chốt `rx_data = 55` kèm xung `rx_valid`, `frame_err` giữ `0`.
+`uart_txd` và `uart_rxd` là hai đầu của **cùng một sợi dây** — testbench nối
+vòng chúng lại, nên hai dòng này luôn giống hệt nhau. Thanh ghi dịch và
+`tx_data` hiển thị dạng nhị phân để đọc trực tiếp từng bit, mã trạng thái FSM
+hiển thị dạng số: `0 = IDLE, 1 = START, 2 = DATA, 3 = STOP`.
 
-### Phóng to ranh giới hai khung
+### Toàn bộ một khung dữ liệu
 
-![Waveform chi tiết](docs/wave_detail.png)
+![Waveform một khung](docs/wave_full_frame.png)
 
-Cửa sổ 640 ns, `clk` hiện rõ dạng xung vuông. `tx_done` lên đúng một chu kỳ
-clock rồi xuống, sau đó `tx_start` được lấy mẫu ở sườn lên kế tiếp và khung mới
-bắt đầu.
+`tx_data = 01010101` nạp vào thanh ghi dịch, rồi hai thanh ghi chạy **ngược
+chiều nhau**: phía truyền dịch phải đẩy từng bit ra dây
+`01010101 → 00101010 → 00010101 → … → 00000000`, phía nhận nạp vào từ MSB
+`00000000 → 10000000 → 01000000 → 10100000 → … → 01010101`. Cuối khung,
+`rx_data` chốt `55` kèm xung `rx_valid`, `frame_err` giữ `0`.
 
-Mở lại waveform bằng `./sim/run_sim.sh wave`. Hai ảnh trên chụp ở khoảng
-`0–95000 ns` và `87020–87660 ns`. Mã trạng thái FSM hiển thị dạng số:
-`0 = IDLE, 1 = START, 2 = DATA, 3 = STOP`.
+### Phóng to lúc bắt đầu
 
----
+![Waveform lúc bắt đầu](docs/wave_start.png)
 
-## 7. Lệnh thủ công
+`rst_n` nhả ở 210 ns, `tx_start` lên đúng một chu kỳ clock ở 310 ns, `uart_txd`
+xuống `0` bắt đầu START bit. Để ý `state` phía nhận đổi **trễ hơn** phía truyền
+hai nhịp clock — đó là độ trễ của hai flip-flop đồng bộ hoá chân `rx`.
 
-Script chỉ gói lại ba lệnh sau:
+### Phóng to lúc kết thúc
 
-```bash
-iverilog -o sim/out/tb_uart.vvp -s tb_uart \
-         rtl/uart_tx.v rtl/uart_rx.v rtl/uart_top.v tb/tb_uart.v
+![Waveform lúc kết thúc](docs/wave_done.png)
 
-vvp sim/out/tb_uart.vvp
-
-gtkwave sim/out/tb_uart.vcd sim/wave_uart.gtkw
-```
-
-`-s` chỉ định module đỉnh, `-o` đặt tên file kết quả biên dịch.
+`tx_done` lên đúng một chu kỳ clock rồi xuống, `state` về `IDLE`. Sau đó
+`tx_start` của khung kế tiếp được lấy mẫu ở sườn lên và `tx_data` đổi sang
+`10101010`.

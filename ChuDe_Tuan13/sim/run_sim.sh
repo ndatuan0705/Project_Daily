@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-# Lab 6 - UART: bien dich va chay mo phong
 #   ./sim/run_sim.sh          bien dich + chay
 #   ./sim/run_sim.sh wave     mo waveform bang GTKWave
 #   ./sim/run_sim.sh clean    xoa sim/out
