@@ -1,0 +1,29 @@
+[*] GTKWave save file - Lab 10 nut nhan + LED
+[dumpfile] "sim/out/waveform.vcd"
+[timestart] 0
+[size] 1600 620
+[treeopen] tb_top.
+[treeopen] tb_top.u_top.
+[sst_width] 240
+[signals_width] 300
+[sst_expanded] 1
+[sst_vpaned_height] 320
+@820
+-NUT NHAN
+@28
+tb_top.clk
+tb_top.rst_n
+tb_top.btn_in
+@820
+-CHONG DOI (debounce)
+@28
+tb_top.u_top.u_debounce.sync_1
+tb_top.u_top.u_debounce.count[2:0]
+tb_top.u_top.u_debounce.btn_state
+tb_top.u_top.u_debounce.btn_tick
+@820
+-FSM + LED (0=OFF 1=LED1 2=LED2 3=LED3)
+@22
+tb_top.u_top.u_fsm.state[1:0]
+@28
+tb_top.led[2:0]

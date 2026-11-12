@@ -54,7 +54,6 @@ module uart_rx #(
     always @(*) begin
         next_state = state;
         case (state)
-
             IDLE: begin
                 if (rx_sync == 1'b0) begin             // canh xuong = START bit
                     next_state = START;
@@ -87,7 +86,6 @@ module uart_rx #(
             default: begin
                 next_state = IDLE;
             end
-
         endcase
     end
 

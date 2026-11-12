@@ -6,6 +6,7 @@ hướng dẫn cài đặt và chạy.
 | Thư mục | Chủ đề | Công cụ |
 |---|---|---|
 | [ChuDe_Tuan13](ChuDe_Tuan13) | Lab 6 — Thiết kế bộ điều khiển giao tiếp UART bằng Verilog | Icarus Verilog, GTKWave |
+| [ChuDe_Tuan14](ChuDe_Tuan14) | Lab 10 — Thiết kế bộ điều khiển bàn phím và LED bằng FSM | Icarus Verilog, GTKWave |
 
 ## Tải về và chạy trên Linux Mint
 
@@ -16,10 +17,13 @@ sudo apt update
 sudo apt install -y git iverilog gtkwave make
 
 git clone https://github.com/ndatuan0705/Project_Daily.git
-cd Project_Daily/ChuDe_Tuan13
+cd Project_Daily
 
-chmod +x sim/run_sim.sh
-./sim/run_sim.sh
+# Lab 6
+cd ChuDe_Tuan13 && chmod +x sim/run_sim.sh && ./sim/run_sim.sh && cd ..
+
+# Lab 10
+cd ChuDe_Tuan14 && chmod +x sim/run.sh && ./sim/run.sh && cd ..
 ```
 
 Repo không commit kết quả do công cụ sinh ra (`sim/out/`, `.vcd`, `.vvp`,
